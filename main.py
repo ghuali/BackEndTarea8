@@ -1,3 +1,5 @@
+
+
 import psycopg2
 from flask import Flask, jsonify, request
 from psycopg2 import connect
@@ -23,14 +25,11 @@ def ejecutar_sql(sql_text):
 
     cursor.execute(sql_text)
 
-    columnas = [desc[0] for desc in cursor.description]
-
-    resultados = cursor.fetchall()
-    empleados = [dict(zip(columnas, fila)) for fila in resultados]
-
-    cursor.close()
-    connection.close()
-    return jsonify(empleados)
+    if "INSERT" in sql_text:
+        connection.commit()
+        cursor.close()
+        connection.close()
+    return jsonify({'msg':'insertado'})
 
 @app.route('/Prueba',methods=['GET'])
 def otraCosa():
@@ -78,6 +77,26 @@ def login():
     resultado = ejecutar_sql(f'''Select * from public."Proyecto" p inner join "GestoresProyecto" g on g.proyecto = p.id where g.gestor = {empleado_id} ''')
 
     return resultado
+
+
+@app.route('/proyectoss',methods=['POST'])
+def crear_proyecto():
+    body_request = request.json
+    nombre = body_request["nombre"]
+    descripcion = body_request["descripcion"]
+    fecha_inicio = body_request["fecha_inicio"]
+    cliente = body_request["cliente"]
+
+    sql = f"""INSERT INTO public."Proyecto" (nombre, descripcion, fecha_creacion, fecha_inicio, fecha_finalizacion, cliente)
+              VALUES (
+                    '{nombre}',
+                    '{descripcion}',
+                    NOW(),
+                    '{fecha_inicio}',
+                    null,
+                    {cliente});
+"""
+    return ejecutar_sql(sql)
 
 if __name__ == '__main__':
    app.run(debug=True)
