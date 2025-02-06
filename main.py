@@ -112,7 +112,7 @@ def login():
         }
     )
 
-@app.route('/proyecto/crear_proyecto', methods=['POST'])
+@app.route('/proyecto/crearProyecto', methods=['POST'])
 def Newproyectos():
     body_request = request.json
     nombre = body_request["nombre"]
@@ -214,6 +214,20 @@ def asignarProgramadorProyecto():
 			)"""
 
     return jsonify(ejecutar_sql(sql))
+
+@app.route('/proyecto/asignarProgramadorTarea', methods=['POST'])
+def asignarProgramadorTarea():
+    body_request = request.json
+    tarea = body_request["tarea"]
+    programador = body_request["programador"]
+
+    query = f"""
+            UPDATE public."Tarea"
+            SET programador = {programador}
+            WHERE id = {tarea}
+        """
+
+    return jsonify(ejecutar_sql(query))
 
 if __name__ == '__main__':
    app.run(debug=True)
