@@ -29,9 +29,19 @@ def ejecutar_sql(sql_text):
         connection.commit()
         cursor.close()
         connection.close()
-    return jsonify({'msg':'insertado'})
+        return jsonify({'msg':'insertado'})
 
-@app.route('/Prueba',methods=['GET'])
+    columnas = [desc[0] for desc in cursor.description]
+
+    resultados = cursor.fetchall()
+    empleados = [dict(zip(columnas,fila)) for fila in resultados]
+
+    cursor.close()
+    connection.close()
+
+    return jsonify(empleados)
+
+@app.route('/Prueba1',methods=['GET'])
 def otraCosa():
     resultado = ejecutar_sql(
     'SELECT * FROM public."Empleado" ORDER BY id ASC LIMIT 100')
@@ -68,35 +78,75 @@ def proyectosGestor():
     return resultado
 
 
-@app.route('/login',methods=['POST'])
+
+# login
+# crear proyecto
+# Asignar gestor a proyecto
+# Asignar cliente a proyecto
+# Crear tareas a proyecto
+# Asignar programador a proyecto
+# Asignar programador a tareas
+# Obtener programadores
+# Obtener proyectos
+# Obtener tareas de un proyecto
+
+@app.route('/gestor/login',methods=['POST'])
 def login():
-    Body = { "user": "Angel", "passwd": "1234" }
     body_request = request.json
     user = body_request["user"]
     passwd = body_request["passwd"]
-    resultado = ejecutar_sql(f'''Select * from public."Proyecto" p inner join "GestoresProyecto" g on g.proyecto = p.id where g.gestor = {empleado_id} ''')
+    is_logged = ejecutar_sql(
+        f"SELECT * FROM public.\"Gestor\" WHERE usuario = '{user}' AND passwd = '{passwd}';"
+    )
+    if len(is_logged.json) == 0:
+        return jsonify({"msg":"login error"})
+    empleado = ejecutar_sql(
+        f"SELECT * FROM public.\"Empleado\" WHERE id = '{is_logged.json[0]["empleado"]}';"
+    )
+    return jsonify(
+        {
+            "id_empleado": empleado.json[0]["id"],
+            "id_gestor": is_logged.json[0]["id"],
+            "nombre": empleado.json[0]["nombre"],
+            "email": empleado.json[0]["email"]
+        }
+    )
 
-    return resultado
-
-
-@app.route('/proyectoss',methods=['POST'])
-def crear_proyecto():
+@app.route('/proyecto/crear_proyecto', methods=['POST'])
+def Newproyectos():
     body_request = request.json
     nombre = body_request["nombre"]
     descripcion = body_request["descripcion"]
+    fecha_creacion = body_request["fecha_creacion"]
     fecha_inicio = body_request["fecha_inicio"]
     cliente = body_request["cliente"]
 
-    sql = f"""INSERT INTO public."Proyecto" (nombre, descripcion, fecha_creacion, fecha_inicio, fecha_finalizacion, cliente)
-              VALUES (
-                    '{nombre}',
-                    '{descripcion}',
-                    NOW(),
-                    '{fecha_inicio}',
-                    null,
-                    {cliente});
-"""
-    return ejecutar_sql(sql)
+    query = f"""
+        INSERT INTO public."Proyecto" (nombre, descripcion, fecha_creacion, fecha_inicio, cliente)
+        VALUES (
+            '{nombre}',
+            '{descripcion}',
+            '{fecha_creacion}',
+            '{fecha_inicio}',
+             {cliente}
+        )"""
+    return jsonify(ejecutar_sql(query))
+
+@app.route('/proyecto/asignarGestor', methods=['POST'])
+def asignarGestorProyecto():
+    body_request = request.json
+    gestor = body_request["gestor"]
+    proyecto = body_request["proyecto"]
+
+    query = f"""
+            INSERT INTO public."GestoresProyecto" (gestor, proyecto, fecha_asignacion)
+            VALUES (
+                {gestor},
+                {proyecto},
+                NOW()
+            )"""
+
+    return jsonify(ejecutar_sql(query))
 
 if __name__ == '__main__':
    app.run(debug=True)
