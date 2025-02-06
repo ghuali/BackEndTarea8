@@ -184,6 +184,20 @@ def crearTareaProyecto():
     if chequeo.json:
         return jsonify({"Error":"El programador no está"})
 
+    query2 = f"""
+                INSERT INTO public."Tarea" (nombre, descripcion, estimacion, fecha_creacion, fecha_finalizacion, programador, proyecto)
+    			VALUES (
+    			    '{nombre}', 
+    			    '{descripcion}', 
+    			    {estimacion}, 
+    			    '{fecha_creacion}', 
+    			    '{fecha_finalizacion}', 
+    			    {programador}, 
+    			    {proyecto}
+    			)"""
+
+    return ejecutar_sql(query2)
+
 
 if __name__ == '__main__':
    app.run(debug=True)
