@@ -162,5 +162,24 @@ def asignarClienteProyecto():
 
     return jsonify(ejecutar_sql(query))
 
+@app.route('/proyecto/tareaProyecto', methods=['POST'])
+def crearTareaProyecto():
+    body_request = request.json
+    nombre = body_request["nombre"]
+    descripcion = body_request["descripcion"]
+    estimacion = body_request["estimacion"]
+    fecha_creacion = body_request["fecha_creacion"]
+    fecha_finalizacion = body_request["fecha_finalizacion"]
+    programador = body_request["programador"]
+    proyecto = body_request["proyecto"]
+
+    # consulta para comprobar programador
+    query1 = \
+        f"""
+            SELECT 1 FROM public."ProgramadoresProyecto"
+            WHERE proyecto = {proyecto} AND programador = {programador};
+        """
+
+
 if __name__ == '__main__':
    app.run(debug=True)
