@@ -148,5 +148,19 @@ def asignarGestorProyecto():
 
     return jsonify(ejecutar_sql(query))
 
+@app.route('/proyecto/asignarClienteProyecto', methods=['POST'])
+def asignarClienteProyecto():
+    body_request = request.json
+    id_cliente = body_request["id_cliente"]
+    id_proyecto = body_request["id_proyecto"]
+
+    query = f"""
+            UPDATE public."Proyecto"
+            SET cliente = {id_cliente}
+            WHERE id = {id_proyecto}
+        """
+
+    return jsonify(ejecutar_sql(query))
+
 if __name__ == '__main__':
    app.run(debug=True)
