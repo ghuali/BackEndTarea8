@@ -180,6 +180,10 @@ def crearTareaProyecto():
             WHERE proyecto = {proyecto} AND programador = {programador};
         """
 
+    chequeo = ejecutar_sql(query1)
+    if chequeo.json:
+        return jsonify({"Error":"El programador no está"})
+
 
 if __name__ == '__main__':
    app.run(debug=True)
