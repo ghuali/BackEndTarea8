@@ -198,6 +198,22 @@ def crearTareaProyecto():
 
     return ejecutar_sql(query2)
 
+@app.route('/proyecto/programadorProyecto', methods=['POST'])
+def asignarProgramadorProyecto():
+    body_request = request.json
+    programador = body_request["programador"]
+    proyecto = body_request["proyecto"]
+    fecha_asignacion = body_request["fecha_asignacion"]
+
+    sql = f"""
+            INSERT INTO public."ProgramadoresProyecto" (programador, proyecto, fecha_asignacion)
+			VALUES (
+			    {programador}, 
+			    {proyecto}, 
+			    '{fecha_asignacion}'
+			)"""
+
+    return jsonify(ejecutar_sql(sql))
 
 if __name__ == '__main__':
    app.run(debug=True)
