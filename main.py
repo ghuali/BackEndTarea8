@@ -65,7 +65,7 @@ def proyectosChill():
 @app.route('/proyecto/proyectos_activos',methods=['GET'])
 def proyectosActivos():
     resultado = ejecutar_sql(
-    '''SELECT * FROM public."Proyecto" where fecha_finalizacion < CURRENT_TIMESTAMP  ''')
+    '''SELECT * FROM public."Proyecto" where fecha_finalizacion > CURRENT_TIMESTAMP  ''')
 
     return resultado
 
@@ -228,6 +228,12 @@ def asignarProgramadorTarea():
         """
 
     return jsonify(ejecutar_sql(query))
+
+@app.route('/proyecto/historialProyectos',methods=['GET'])
+def historialProyecto():
+    resultado = '''SELECT * FROM public."Proyecto" where fecha_finalizacion < CURRENT_TIMESTAMP '''
+
+    return ejecutar_sql(resultado)
 
 if __name__ == '__main__':
    app.run(debug=True)
