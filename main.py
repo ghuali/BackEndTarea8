@@ -235,5 +235,13 @@ def historialProyecto():
 
     return ejecutar_sql(resultado)
 
+@app.route('/proyecto/tareasProyectos', methods=['GET'])
+def obtener_tareas_proyectos():
+    proyecto_id = request.args.get('id')
+
+    sql = f'SELECT * FROM public."Tarea" WHERE proyecto = {proyecto_id}'
+
+    return ejecutar_sql(sql)
+
 if __name__ == '__main__':
    app.run(debug=True)
